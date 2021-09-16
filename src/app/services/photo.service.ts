@@ -19,6 +19,8 @@ export interface CameraPhoto {
 export class PhotoService {
   public photos: CameraPhoto[] = [];
 
+  private PHOTO_STORAGE: string = 'photos';
+
   constructor() {}
 
   public async addNewToGallery() {
@@ -31,6 +33,25 @@ export class PhotoService {
     const savedImageFile = await this.savePicture(capturedPhoto);
 
     this.photos.unshift(savedImageFile);
+
+    Storage.set({
+      key: this.PHOTO_STORAGE,
+      value: JSON.stringify(this.photos),
+    });
+  }
+
+  public async loadSaved() {
+    const photoList = await Storage.get({ key: this.PHOTO_STORAGE });
+    this.photos = JSON.parse(photoList.value) || [];
+
+    for (let photo of this.photos) {
+      const readFile = await Filesystem.readFile({
+        path: photo.filepath,
+        directory: Directory.Data,
+      });
+
+      photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
+    }
   }
 
   private async savePicture(cameraPhoto: Photo) {
