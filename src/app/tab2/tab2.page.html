@@ -5,6 +5,10 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-text *ngIf="photoService.photos.length === 0" color="medium">
+    <h3 style="text-align: center">No photos yet.</h3>
+  </ion-text>
+
   <ion-grid>
     <ion-row>
       <ion-col
